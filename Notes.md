@@ -36,3 +36,38 @@
 - OpenTofu → Open-source alternative of Terraform  
 - Ansible → Imperative automation/configuration tool  
 - CloudFormation → AWS-specific IaC tool  
+
+# Formula of terraform
+
+<block> <parameter> {
+    argunments
+}
+
+
+## Explanation
+
+- **Block**  
+  Defines the type of configuration in Terraform.  
+
+  **Examples:**
+  - `resource` → create infrastructure  
+  - `variable` → input values  
+  - `output` → display results  
+  - `data` → fetch existing info  
+
+---
+
+- **Parameter**  
+  Identifies the block. It includes:
+
+  - **Type** → what resource (e.g., `aws_instance`, `azurerm_vm`)  
+  - **Name** → logical name given to the resource  
+
+---
+
+- **Arguments**  
+  Key-value pairs inside the block that define the configuration.  
+  They specify how the resource should be created.
+
+
+provider -->

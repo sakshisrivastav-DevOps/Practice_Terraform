@@ -21,9 +21,8 @@ https://developer.hashicorp.com/terraform
 
 - **VPC Module:** ~> 5.0  
 
-## Terraform Install on Linux/Ubuntu
-
 ## Terraform Installation (Ubuntu)
+Please refere official website for installation
 
 ```bash
 wget -O - https://apt.releases.hashicorp.com/gpg \   # Downloads the HashiCorp GPG key and outputs it
@@ -40,6 +39,7 @@ terraform -v # to check terraform version
 
 ```bash
 terraform init   # Initializes working directory and downloads required provider plugins
+``
 
 ## Core Commands
 
@@ -66,4 +66,4 @@ terraform workspace new <name>     # Create new workspace
 terraform workspace select <name>  # Switch workspace
 terraform providers                # Show required providers
 terraform graph                    # Generate dependency graph
-``
+
