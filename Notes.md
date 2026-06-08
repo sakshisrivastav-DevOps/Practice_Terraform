@@ -70,4 +70,25 @@
   They specify how the resource should be created.
 
 
-provider -->
+## Provider (Terraform)
+
+- A **provider** is a plugin that allows Terraform to interact with APIs of cloud platforms or services.
+- It is used to create, manage, and provision resources.
+
+---
+
+### Examples
+- AWS → `hashicorp/aws`  
+- Azure → `hashicorp/azurerm`  
+- GCP → `hashicorp/google`  
+
+---
+
+### Basic Syntax
+
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+
+
