@@ -14,6 +14,7 @@ ls   # List files to verify resource creation (e.g., firstfile.txt)
 terraform destroy   # Destroy all resources (e.g., deletes firstfile.txt)
 
 ###########################################################
+
 now to create the s3 bucket in aws, we would need aws cli to install(git bash)
 
 # Install aws cli using below official site and command
@@ -21,7 +22,9 @@ now to create the s3 bucket in aws, we would need aws cli to install(git bash)
 https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
 unzip awscliv2.zip # if error here, sudo apt install unzip
+
 sudo ./aws/install
 
 aws --version
@@ -40,7 +43,9 @@ now see the s3_bucket.tf
 https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
 
 terraform init
+
 terraform plan
+
 terraform apply
 
 aws s3 ls## Terraform Destroy Target (Specific Resource)
