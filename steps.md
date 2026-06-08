@@ -1,9 +1,17 @@
-vim main.yml  # under terraform_for_devOps folder
-terraform init
-terraform plan
-terraform apply
-ls
-terraform destroy # it will destroy the file firstfile.txt
+## Terraform Workflow (Example)
+
+```bash
+vim main.tf   # Create or edit Terraform configuration file inside terraform_for_devOps folder
+
+terraform init   # Initialize Terraform (downloads providers and sets up working directory)
+
+terraform plan   # Preview changes before applying
+
+terraform apply  # Apply changes and create resources
+
+ls   # List files to verify resource creation (e.g., firstfile.txt)
+
+terraform destroy   # Destroy all resources (e.g., deletes firstfile.txt)
 
 ###########################################################
 now to create the s3 bucket in aws, we would need aws cli to install(git bash)
