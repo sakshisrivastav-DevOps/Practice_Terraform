@@ -61,13 +61,22 @@ terraform destroy -target=local_file.<resource_name>
 
 #########################
 
-Now let's create a ec2 instance
+## Create EC2 Instance using Terraform
 
+```bash
+# Create Terraform file
 vim terraform_for_devops/ec2.tf
 
-for key pair
+# Generate SSH key pair
+ssh-keygen   # give name: deployer-key
 
-ssh-keygen
-give name : deployer-key
+# Go to public key file
 cd deployer-key.pub
-copy public key and add in ec2.tf
+
+# Copy the public key or copy the pwd path for security purpose and add it into ec2.tf
+
+# Validate Terraform configuration
+terraform validate
+
+# Apply configuration to create EC2 instance
+terraform apply

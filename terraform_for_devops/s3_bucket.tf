@@ -4,7 +4,7 @@ provider "aws" {
 
 resource "aws_s3_bucket" "my_bucket" {
 
-  bucket = "first_s3_bucket"  #this should be unique
+  bucket = "first-s3-bucket"  #this should be unique
 
 }
   
