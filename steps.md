@@ -59,3 +59,15 @@ terraform destroy -target=local_file.<resource_name>
 > If you get an error like *"bucket name already exists"*, it means the name is already taken by someone else.  
 > Use a unique naming pattern (e.g., add project name, environment, or random suffix).
 
+#########################
+
+Now let's create a ec2 instance
+
+vim terraform_for_devops/ec2.tf
+
+for key pair
+
+ssh-keygen
+give name : deployer-key
+cd deployer-key.pub
+copy public key and add in ec2.tf
