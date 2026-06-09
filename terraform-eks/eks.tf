@@ -1,0 +1,1 @@
+#Provisioned a full AWS EKS cluster with Terraform modules VPC, subnets, NAT gateway, IAM roles, node groups, the works. 30+ resources created with one command, deployed Nginx on it, and destroyed everything cleanly. This is real-world infrastructure as code
