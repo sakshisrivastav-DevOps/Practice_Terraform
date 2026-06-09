@@ -175,3 +175,81 @@ provider "aws" {
 
 .terraform.lock.hcl is created in the same directory where you run terraform init, alongside your Terraform configuration files.
 
+```
+VPC
+ ├── Subnet
+ ├── Internet Gateway
+ └── Route Table
+        └── Association with Subnet
+``
+
+## Terraform Dependency Questions
+
+### 1. How does Terraform know to create the VPC before the subnet?
+
+Terraform understands the order using **implicit dependencies**.
+
+In your configuration:
+
+```hcl
+vpc_id = aws_vpc.my_vpc.id
+```
+
+- The subnet is referencing the VPC ID  
+- Terraform automatically detects that **subnet depends on VPC**  
+- So it creates the VPC first, then the subnet  
+
+👉 No manual ordering is required
+
+---
+
+### 2. What would happen if you tried to create the subnet before the VPC existed?
+
+- The subnet requires a valid `vpc_id`  
+- If the VPC does not exist, AWS will return an error  
+
+Example:
+```
+Error: VPC not found
+```
+
+👉 So Terraform would fail to create the subnet  
+
+---
+
+### 3. Implicit dependencies in this configuration
+
+Terraform automatically creates dependencies wherever references are used:
+
+```hcl
+aws_subnet.my_subnet → depends on → aws_vpc.my_vpc
+```
+
+```hcl
+aws_internet_gateway.my_gw → depends on → aws_vpc.my_vpc
+```
+
+```hcl
+aws_route_table.my_rt → depends on → aws_vpc.my_vpc
+```
+
+```hcl
+aws_route_table.my_rt → depends on → aws_internet_gateway.my_gw
+```
+
+```hcl
+aws_route_table_association.my_rta → depends on → aws_subnet.my_subnet
+```
+
+```hcl
+aws_route_table_association.my_rta → depends on → aws_route_table.my_rt
+```
+
+---
+
+### Final Note
+
+- Terraform builds a **dependency graph automatically**
+- Order is determined using references (`resource.type.name.attribute`)
+- This is called **implicit dependency**
+
