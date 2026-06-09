@@ -140,3 +140,38 @@ provider "aws" {
 
 - required_providers → Install app  
 - provider → Open app and set location 
+
+## .terraform.lock.hcl (Short Notes)
+
+```bash
+.terraform.lock.hcl
+```
+
+# Explanation
+
+- This file is **automatically created** after running `terraform init`
+- It locks the **exact provider versions** used in your project
+- Ensures all team members use the **same provider version**
+- Prevents unexpected changes due to version upgrades
+- Maintains consistency across different environments
+
+# What it contains
+
+- Provider name (e.g., aws)
+- Exact version installed (e.g., 5.32.1)
+- Checksums (for security verification)
+
+# Why it is important
+
+- Avoids "works on my machine" issues  
+- Ensures reproducible deployments  
+- Provides version stability in teams and CI/CD pipelines  
+
+# Quick Note
+
+- Do NOT delete this file in team projects  
+- Commit it to Git  
+- Guarantees same provider behavior everywhere  
+
+.terraform.lock.hcl is created in the same directory where you run terraform init, alongside your Terraform configuration files.
+
