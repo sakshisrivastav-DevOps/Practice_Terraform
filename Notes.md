@@ -92,3 +92,51 @@ provider "aws" {
 }
 
 
+## Terraform Provider vs Required Providers (Complete Notes)
+
+```hcl
+# Terraform Block (defines which provider to use and its version)
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"   # provider source (download from Terraform registry)
+      version = "~> 5.0"          # version constraint (>= 5.0 and < 6.0)
+    }
+  }
+}
+
+# Provider Block (configures the provider)
+provider "aws" {
+  region = "us-west-2"            # region where resources will be created
+}
+```
+
+# Explanation
+
+- terraform {}  
+  Used to define Terraform-level settings (providers, versions)
+
+- required_providers  
+  Defines which provider to use, its source, and version  
+  Used during terraform init → downloads provider plugin  
+
+- provider "aws"  
+  Used to configure provider (region, credentials)  
+  Used during terraform plan and apply  
+
+# Version Meaning
+
+- ~> 5.0 → >= 5.0 and < 6.0
+- >= 5.0 → any higher version
+- = 5.0.0 → exact version only 
+
+
+# Key Difference
+
+- required_providers → installs provider  
+- provider → configures provider  
+
+# Analogy
+
+- required_providers → Install app  
+- provider → Open app and set location 

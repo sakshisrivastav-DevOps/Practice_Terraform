@@ -80,3 +80,52 @@ terraform validate
 
 # Apply configuration to create EC2 instance
 terraform apply
+
+## AWS CLI Multi-Profile Configuration
+
+```bash
+# Navigate to AWS directory
+cd ~/.aws/
+
+# List files
+ls
+
+# View config file
+cat config
+
+# Edit config file
+vim config
+```
+
+```
+[default]         # default profile
+
+[dev]             # second profile (dev environment)
+```
+
+```bash
+# Edit credentials file
+vim credentials
+```
+
+```
+[default]
+aws_access_key_id = <your_default_access_key>        # access key for default profile
+aws_secret_access_key = <your_default_secret_key>    # secret key for default profile
+
+[dev]
+aws_access_key_id = <your_dev_access_key>            # access key for dev profile
+aws_secret_access_key = <your_dev_secret_key>        # secret key for dev profile
+```
+
+```bash
+# Login using specific profile
+aws login --profile dev   # login using dev profile
+```
+
+# Notes
+
+- `default` → used when no profile is specified  
+- `dev` → custom profile for separate environment  
+- Copy the login link → paste in browser → authenticate  
+- Useful for managing multiple AWS accounts or environments  
