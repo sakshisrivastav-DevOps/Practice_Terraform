@@ -1,3 +1,6 @@
+#Built a complete AWS networking -- VPC, subnets, internet gateway, route tables, security groups, 
+#and an EC2 instance. All connected through dependency graphs. Terraform decides the order, you define the desired state
+
 resource "aws_vpc" "my_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
@@ -89,5 +92,14 @@ resource "aws_instance" "instance_created_through_terraform" {
   root_block_device {
     volume_size = 10
     volume_type = "gp3"
+  }
+}
+
+resource "aws_s3_bucket" "applog" {
+  bucket = "terraweek-app-logs"  #actual bucket name in AWS, must be unique globally
+  depends_on = [aws_instance.instance_created_through_terraform]
+  tags = {
+    Name  = "My bucket"
+
   }
 }

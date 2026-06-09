@@ -253,3 +253,168 @@ aws_route_table_association.my_rta → depends on → aws_route_table.my_rt
 - Order is determined using references (`resource.type.name.attribute`)
 - This is called **implicit dependency**
 
+# Terraform depends_on Notes
+
+## What is depends_on?
+- Explicit dependency defined manually
+- Forces Terraform to create resources in a specific order
+
+## Why use it?
+- When Terraform cannot detect dependency automatically
+- No direct reference exists between resources
+
+## Syntax
+depends_on = [resource_type.resource_name]
+
+## Example
+resource "aws_s3_bucket" "app_logs" {
+  bucket = "terraweek-app-logs-12345"
+
+  depends_on = [aws_instance.my_ec2]
+}
+
+## Types of Dependencies
+
+### 1. Implicit Dependency
+- Created automatically via attribute reference
+- Example:
+  vpc_id = aws_vpc.my_vpc.id
+
+### 2. Explicit Dependency
+- Manually defined using depends_on
+- Used when no direct reference exists
+
+## Real Use Cases
+
+1. EC2 → S3 logging
+- Ensure instance is created before log bucket
+
+2. IAM Role → EC2
+- Ensure role exists before attaching to instance
+
+3. Infra → App deployment
+- Deploy app only after infra is fully ready
+
+## When NOT to use
+- Avoid if dependency is already implicit
+- Overuse leads to unnecessary delays
+
+## Key Point
+- depends_on overrides Terraform’s execution plan
+- Use only when required
+
+ terraform graph | dot -Tpng > graph.png
+
+ This generates a visual dependency graph
+
+
+ # Terraform Variable Types
+
+ https://developer.hashicorp.com/terraform/language/values/variables
+
+## 1. string
+- Text values
+- Example: "us-west-2"
+
+## 2. number
+- Numeric values
+- Example: 10
+
+## 3. bool
+- True / False
+- Example: true
+
+## 4. list
+- Ordered collection
+- Example: [22, 80, 443]
+
+## 5. map
+- Key-value pairs
+- Example:
+  {
+    Name = "test"
+    Env  = "dev"
+  }
+
+  # Terraform Variables Questions & Answers
+
+## Q1: What are variables in Terraform?
+Variables are used to parameterize Terraform configurations, making them reusable and flexible instead of hardcoding values.
+
+---
+
+## Q2: What are the different types of variables in Terraform?
+Terraform supports the following variable types:
+- string
+- number
+- bool
+- list
+- map
+
+---
+
+## Q3: How do you define a variable in Terraform?
+
+variable "region" {
+  type    = string
+  default = "us-west-2"
+}
+
+---
+
+## Q4: How do you use a variable in Terraform?
+
+provider "aws" {
+  region = var.region
+}
+
+---
+
+## Q5: How do you pass values to variables?
+
+1. Using CLI:
+terraform apply -var="region=us-east-1"
+
+2. Using tfvars file:
+terraform apply -var-file="dev.tfvars"
+
+3. Environment variables
+
+---
+
+## Q6: What is a .tfvars file?
+A `.tfvars` file is used to define variable values externally, making configurations environment-specific (dev, prod, etc.).
+
+Example:
+project_name = "terraweek"
+environment  = "dev"
+
+---
+
+## Q7: What happens if a variable has no default value?
+Terraform will prompt the user to enter a value during `terraform plan` or `apply`.
+
+---
+
+## Q8: What is the difference between variable and local in Terraform?
+
+- Variable → Input provided by user
+- Local → Computed value inside Terraform
+
+Example:
+locals {
+  name = "${var.project}-dev"
+}
+
+---
+
+## Q9: Why are variables important in real projects?
+
+- Avoid hardcoding
+- Enable reuse across environments
+- Improve maintainability
+- Support dynamic infrastructure
+
+---
+
+
