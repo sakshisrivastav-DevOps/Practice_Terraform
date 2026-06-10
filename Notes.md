@@ -303,6 +303,9 @@ resource "aws_s3_bucket" "app_logs" {
 - depends_on overrides Terraform’s execution plan
 - Use only when required
 
+ sudo apt install graphviz
+ dot -v
+ terraform graph
  terraform graph | dot -Tpng > graph.png
 
  This generates a visual dependency graph
@@ -417,4 +420,419 @@ locals {
 
 ---
 
+# Terraform Lifecycle Arguments  Notes
+
+## What is lifecycle in Terraform?
+- A meta-argument used to control how Terraform creates, updates, or deletes resources
+- Allows fine-grained control over resource behavior
+
+---
+
+## 1. create_before_destroy
+
+### What it does
+- Creates a new resource before destroying the old one
+
+### Syntax
+lifecycle {
+  create_before_destroy = true
+}
+
+### When to use
+- To avoid downtime during updates
+- When replacing resources like EC2, Load Balancers, etc.
+
+### Example
+- Changing AMI of EC2 instance
+- Terraform will:
+  1. Create new instance
+  2. Destroy old instance
+
+✅ Ensures zero downtime
+
+---
+
+## 2. prevent_destroy
+
+### What it does
+- Prevents accidental deletion of a resource
+- Terraform throws an error if destroy is attempted
+
+### Syntax
+lifecycle {
+  prevent_destroy = true
+}
+
+### When to use
+- Critical production resources
+- Databases (RDS)
+- Important S3 buckets
+- Long-running infrastructure
+
+### Example
+- Prevent accidental deletion of production DB
+
+✅ Protects critical resources
+
+---
+
+## 3. ignore_changes
+
+### What it does
+- Ignores changes to specific attributes
+- Terraform will not update resource even if configuration changes
+
+### Syntax
+lifecycle {
+  ignore_changes = [attribute_name]
+}
+
+### When to use
+- When attributes are modified outside Terraform
+- When autoscaling or external systems update resources
+- To avoid unnecessary updates
+
+### Example
+lifecycle {
+  ignore_changes = [ami, tags]
+}
+
+✅ Prevents unwanted updates
+
+---
+
+## Key Comparison
+
+| Argument                | Purpose                          |
+|------------------------|----------------------------------|
+| create_before_destroy  | Avoid downtime                   |
+| prevent_destroy        | Protect critical resources       |
+| ignore_changes         | Ignore external/manual changes   |
+
+---
+
+
+"Lifecycle arguments in Terraform control how resources are created, updated, and destroyed. 
+- create_before_destroy is used for zero-downtime deployments 
+- prevent_destroy protects critical resources from accidental deletion 
+- ignore_changes avoids unnecessary updates when attributes are managed outside Terraform."
+
+
+# Terraform Variable Precedence Order
+
+## Definition
+Variable precedence defines the order Terraform follows when multiple values are assigned to the same variable.
+
+---
+
+## Precedence Order (Lowest → Highest Priority)
+
+1. Default values in `variables.tf`
+   - Defined inside variable block
+   - Used if no other value is provided
+
+2. Environment Variables (`TF_VAR_*`)
+   - Example:
+     export TF_VAR_region=us-west-2
+
+3. `terraform.tfvars` file
+   - Automatically loaded by Terraform
+
+4. `*.auto.tfvars` files
+   - Automatically loaded (alphabetical order)
+
+5. CLI variable files (`-var-file`)
+   - Example:
+     terraform apply -var-file="dev.tfvars"
+
+6. CLI variables (`-var`)
+   - Example:
+     terraform apply -var="region=us-east-1"
+
+---
+
+## Key Rule
+
+- Highest priority value overrides all lower-priority values
+- CLI (`-var`) has the highest precedence
+
+---
+
+## Example
+
+If same variable is defined in:
+- variables.tf → "us-west-2"
+- dev.tfvars → "us-east-1"
+- CLI → "eu-central-1"
+
+👉 Final value used:
+"eu-central-1"
+
+---
+
+
+"Terraform follows a precedence order where default values have the lowest priority and command-line variables (-var) have the highest priority. The most specific input always overrides the others."
+
+# Terraform Resource vs Data Source
+
+## Resource
+
+- Used to create and manage infrastructure
+- Terraform controls lifecycle (create, update, destroy)
+
+Example:
+resource "aws_instance" "example" {}
+
+---
+
+## Data Source
+
+- Used to fetch existing information
+- Does NOT create resources
+- Read-only
+
+Example:
+data "aws_ami" "amazon_linux" {}
+
+---
+
+## Key Differences
+
+| Feature        | Resource                  | Data Source             |
+|---------------|---------------------------|------------------------|
+| Creates infra | Yes                       | No                     |
+| Purpose       | Manage resources          | Fetch existing data    |
+| Lifecycle     | Managed by Terraform      | Not managed            |
+
+---
+
+## Real-world Use Cases
+
+### Resource
+- Create EC2, VPC, S3
+
+### Data Source
+- Fetch latest AMI
+- Get availability zones
+- Fetch existing VPC details
+
+---
+
+## Tip
+
+"Resources create and manage infrastructure, while data sources are used to fetch existing information without modifying it."
+
+
+
+# Terraform Locals – Interview Notes
+
+## What are Locals?
+- Locals are used to define reusable values inside Terraform configuration
+- They help reduce repetition and improve readability
+
+---
+
+## Syntax
+
+locals {
+  name_prefix = "${var.project_name}-${var.environment}"
+
+  common_tags = {
+    Project     = var.project_name
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}
+
+---
+
+## Key Concepts
+
+### 1. name_prefix
+- Combines project name and environment
+- Used for consistent resource naming
+
+Example:
+terraweek-dev
+terraweek-prod
+
+---
+
+### 2. common_tags
+- Stores tags reused across resources
+- Ensures consistency in tagging
+
+---
+
+## Using Locals in Resources
+
+Example:
+
+tags = merge(local.common_tags, {
+  Name = "${local.name_prefix}-server"
+})
+
+---
+
+## What is merge()?
+
+- Combines multiple maps into one
+- Used to merge common tags with resource-specific tags
+
+---
+
+## Benefits of Locals
+
+- Avoid code repetition
+- Improve readability
+- Ensure consistent naming
+- Centralized logic
+
+---
+
+## Locals vs Variables
+
+| Feature   | Variable                  | Local                    |
+|----------|--------------------------|---------------------------|
+| Source   | User input               | Defined in code           |
+| Purpose  | Input values             | Reusable logic            |
+| Change   | External (tfvars/CLI)    | Internal only             |
+
+---
+
+## Real-world Use Cases
+
+- Standard naming convention across resources
+- Common tagging strategy (Project, Environment)
+- Derived values (combining variables)
+
+---
+
+## Tip
+
+"Locals are used to simplify Terraform configurations by defining reusable and computed values, helping maintain consistency and avoid repetition across resources."
+
+
+# Terraform Functions & Conditional Expressions – Interview Notes
+
+## What are Functions in Terraform?
+- Built-in functions used to manipulate data
+- Help in formatting, transforming, and calculating values
+
+---
+
+## 1. upper()
+
+### Purpose
+- Converts a string to uppercase
+
+### Example
+upper("terraweek")
+
+### Output
+"TERRAWEEK"
+
+---
+
+## 2. join()
+
+### Purpose
+- Combines list elements into a single string using a separator
+
+### Example
+join("-", ["terra", "week", "2026"])
+
+### Output
+"terra-week-2026"
+
+---
+
+## 3. format()
+
+### Purpose
+- Formats a string using placeholders
+
+### Example
+format("arn:aws:s3:::%s", "my-bucket")
+
+### Output
+"arn:aws:s3:::my-bucket"
+
+---
+
+## 4. lookup()
+
+### Purpose
+- Retrieves value from a map based on key
+
+### Example
+lookup({dev = "t2.micro", prod = "t3.small"}, "dev")
+
+### Output
+"t2.micro"
+
+### Use Case
+- Environment-based configuration
+
+---
+
+## 5. cidrsubnet()
+
+### Purpose
+- Generates subnet CIDR from a base CIDR block
+
+### Example
+cidrsubnet("10.0.0.0/16", 8, 1)
+
+### Output
+"10.0.1.0/24"
+
+### Use Case
+- Dynamic network creation
+
+---
+
+## Additional Useful Functions
+
+### length()
+- Returns number of elements in list
+Example: length(["a","b","c"]) → 3
+
+---
+
+### toset()
+- Removes duplicate elements and converts list to set
+Example: toset(["a","b","a"]) → ["a","b"]
+
+---
+
+## Conditional Expression
+
+### Syntax
+condition ? true_value : false_value
+
+---
+
+### Example
+instance_type = var.environment == "prod" ? "t3.small" : "t2.micro"
+
+---
+
+### Explanation
+- If environment = "prod" → use "t3.small"
+- Else → use "t2.micro"
+
+---
+
+## Real-world Use of Conditionals
+
+- Change instance size based on environment
+- Enable/disable features
+- Control resource creation
+
+---
+
+## Tip
+
+"Terraform functions are used to manipulate data and simplify configurations, while conditional expressions help dynamically control values based on conditions such as environment."
 

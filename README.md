@@ -58,6 +58,8 @@ terraform show                      # Display current state or execution plan
 terraform state list               # List all resources in state file
 terraform state show <resource>    # Show details of a specific resource
 terraform output                   # Display output variables
+terraform output instance_public_ip #specific thing
+terraform output -json 
 terraform refresh                  # Update state file with real infrastructure (deprecated but still used)
 terraform taint <resource>         # Mark resource for recreation
 terraform untaint <resource>       # Remove taint from resource

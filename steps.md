@@ -129,3 +129,6 @@ aws login --profile dev   # login using dev profile
 - `dev` → custom profile for separate environment  
 - Copy the login link → paste in browser → authenticate  
 - Useful for managing multiple AWS accounts or environments  
+
+
+terraform apply -var-file="dev.tfvars"

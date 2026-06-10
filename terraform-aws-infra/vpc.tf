@@ -1,20 +1,59 @@
-#Built a complete AWS networking -- VPC, subnets, internet gateway, route tables, security groups, 
-#and an EC2 instance. All connected through dependency graphs. Terraform decides the order, you define the desired state
+# Built a complete AWS infrastructure using Terraform, including VPC, subnet, internet gateway, route tables, security groups, and EC2 instance, all connected through dependency graphs where Terraform manages execution order. Enhanced the configuration to be fully dynamic and production-ready by introducing variables for environment-specific inputs, data sources for dynamic AMI selection, locals for consistent naming and tagging, and conditional expressions for adaptive resource sizing—resulting in a reusable, zero hardcoded Terraform setup.
 
-resource "aws_vpc" "my_vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name = "TerraWeek-VPC"
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+
+  owners = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
   }
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+resource "aws_vpc" "my_vpc" {
+  cidr_block = var.vpc_cidr
+  #cidr_block = "10.0.0.0/16"
+  # tags = {
+  #   Name = "TerraWeek-VPC"
+  # }
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-vpc"
+  })
+}
+
 resource "aws_subnet" "my_subnet" {
-  cidr_block = "10.0.1.0/24"
-  vpc_id = aws_vpc.my_vpc.id
+  #cidr_block = "10.0.1.0/24"
+  
+  cidr_block = var.subnet_cidr
+  vpc_id     = aws_vpc.my_vpc.id
+
+  availability_zone = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
-  tags = {
-    Name = "TerraWeek-Public-Subnet"
-  }
+#   tags = {
+#     Name = "TerraWeek-Public-Subnet"
+#   }
+# }
+
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-subnet"
+  })
 }
 
 resource "aws_internet_gateway" "my_gw" {
@@ -40,9 +79,14 @@ resource "aws_security_group" "my_sg" {
   description = "Allow inbound traffic and all outbound traffic"
   vpc_id      = aws_vpc.my_vpc.id
 
-  tags = {
-    Name = "TerraWeek-SG"
-  }
+  # tags = {
+  #   Name = "TerraWeek-SG"
+  # }
+  
+tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-sg"
+  })
+
 }
 
 # Inbound(ingress) & outbound(egress) port rule
@@ -78,16 +122,26 @@ resource "aws_key_pair" "deployer" {
 
 resource "aws_instance" "instance_created_through_terraform" {
   count = 1 
-  ami  = "ami-0d13e2317a7e75c95"  #this take from aws of same above defined region, otherwise, it will throws an error, click on launch instance, you will see these value
-  instance_type = "t2.micro"
+  ami = data.aws_ami.amazon_linux.id
+  #ami  = "ami-0fe18bc3cfa53a248"  #this take from aws of same above defined region, otherwise, it will throws an error, click on launch instance, you will see these value
+  instance_type = "t3.micro"
   associate_public_ip_address = true
   subnet_id = aws_subnet.my_subnet.id
-  key_name = "aws_key_pair.deployer.key_name"
+  key_name = aws_key_pair.deployer.key_name
 
-  tags = {
-    Name = "TerraWeek-Server"  #ec2-name
-  }
+  # tags = {
+  #   Name = "TerraWeek-Server"  #ec2-name
+  # }
   
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-server"
+  
+  })
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
   vpc_security_group_ids = [aws_security_group.my_sg.id]
   root_block_device {
     volume_size = 10
