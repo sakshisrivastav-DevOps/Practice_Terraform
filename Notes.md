@@ -836,3 +836,80 @@ instance_type = var.environment == "prod" ? "t3.small" : "t2.micro"
 
 "Terraform functions are used to manipulate data and simplify configurations, while conditional expressions help dynamically control values based on conditions such as environment."
 
+# Terraform State – Key Tips
+
+## Core Concept
+- State file (`terraform.tfstate`) is the **source of truth**
+- It maps Terraform configuration to real infrastructure
+- Stores actual resource details (IDs, IPs, attributes, metadata)
+
+---
+
+## State vs Real Infra
+
+- Terraform trusts **state file**, not manual changes
+- If resource is changed manually → **drift occurs**
+- Example:
+  - Code: EC2 = stopped
+  - Manual: EC2 = running
+  - State = last known actual → mismatch detected
+  - Terraform tries to reconcile on next apply
+
+---
+
+## Important Rules
+
+- NEVER manually edit `terraform.tfstate`
+- NEVER commit state file to Git
+- Always add to `.gitignore`
+
+Example:
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+---
+
+## What State Contains
+
+- Resource IDs (ex: EC2 instance ID)
+- Public/private IP
+- DNS names
+- Security groups
+- Metadata and dependencies
+- Much more than defined in `.tf` file
+
+---
+
+## Risks
+
+- Lose state → Terraform loses tracking
+- Corrupt state → wrong changes or deletion
+- No locking → multiple users can break infrastructure
+
+---
+
+## Best Practices
+
+- Use **remote backend (S3)**
+- Enable **versioning and encryption**
+- Use **locking (DynamoDB)**
+- Separate state per environment (dev/prod)
+
+---
+
+## Drift
+
+- Drift = difference between state and real infra
+- Happens when manual changes are made
+- Detected using:
+terraform plan
+
+---
+
+## Tips
+
+- Treat state like a **critical asset**
+- Always back up state
+- Use Terraform commands (not manual edits)
+- Remote state is mandatory for real projects
