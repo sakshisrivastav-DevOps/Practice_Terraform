@@ -913,3 +913,92 @@ terraform plan
 - Always back up state
 - Use Terraform commands (not manual edits)
 - Remote state is mandatory for real projects
+
+
+# Terraform State Locking & Reliable Backend – Tips
+
+## State Locking Concept
+
+- Terraform uses **remote backend** to store state in a central place (not local, not Git)
+- Common setup:
+  - S3 → stores state file
+  - DynamoDB → handles locking
+
+---
+
+## How State Locking Works
+
+- State file is stored in **S3 bucket**
+- When a user runs `terraform apply`:
+  1. Terraform tries to acquire lock in DynamoDB
+  2. If lock is free → operation continues
+  3. If another user is running → operation is blocked
+
+- DynamoDB stores:
+  - LockID
+  - User/process info
+  - Timestamp
+
+✅ Ensures only one operation at a time
+
+---
+
+## Why Locking is Important
+
+- Prevents multiple users modifying state simultaneously
+- Avoids state corruption
+- Ensures consistency of infrastructure
+
+---
+
+## How to Make Terraform Backend Reliable
+
+### 1. Use Remote Backend (S3)
+- Do not store state locally
+- Centralized storage for team usage
+
+---
+
+### 2. Enable Versioning in S3
+- Keeps history of state files
+- Helps recover from corruption or accidental deletion
+
+---
+
+### 3. Enable Encryption
+- Protects sensitive data in state
+- Use:
+  - S3 encryption (SSE)
+  - IAM access control
+
+---
+
+### 4. Use DynamoDB for Locking
+- Prevent concurrent Terraform operations
+- Avoid state conflicts
+
+---
+
+### 5. Restrict Access (IAM)
+- Only authorized users can access backend
+- Avoid accidental or malicious changes
+
+---
+
+### 6. Do NOT Store in Git
+- State file contains sensitive data
+- Always add to `.gitignore`
+
+Example:
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+---
+
+### 7. Use Separate State per Environment
+- dev / test / prod should have separate state
+- Reduces blast radius
+
+---
+
