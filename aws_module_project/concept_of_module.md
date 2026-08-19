@@ -1,3 +1,5 @@
+# A Terraform module is just a directory with .tf files.
+
 # Difference Between a Root Module and a Child Module
 
 ## Root Module
