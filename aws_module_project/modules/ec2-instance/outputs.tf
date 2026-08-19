@@ -1,16 +1,13 @@
 # Module outputs
 
 output "instance_id" {
-  description = "value"
-  value = g
+  value = aws_instance.this.id
 }
 
 output "public_ip" {
-    value = h
-  
+  value = aws_instance.this.public_ip
 }
 
 output "private_ip" {
-  
-  value = b
+  value = aws_instance.this.private_ip
 }
