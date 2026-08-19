@@ -1,5 +1,6 @@
 # Module outputs
 
 output "sg_id" {
-  value = j
+  description = "ID of the security group"
+  value       = aws_security_group.this.id
 }
